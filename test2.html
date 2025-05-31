@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Repeating Decimal Operations | Dihad</title>
+  <link rel="icon" type="image/png" href="web icon.jpeg" />
+
+
+
+
+
+
+
+  <style>
+    :root {
+      --bg-color: #121212;
+      --text-color: #ffffff;
+      --container-bg: #1e1e1e;
+      --input-bg: #121212;
+      --border-color: #333333;
+      --button-bg: #ff6600;
+      --button-hover: #e65c00;
+    }
+    .light-mode {
+      --bg-color: #f5f5f5;
+      --text-color: #000000;
+      --container-bg: #ffffff;
+      --input-bg: #ffffff;
+      --border-color: #cccccc;
+      --button-bg: #ff6600;
+      --button-hover: #e65c00;
+    }
+    body {
+      margin: 0;
+      padding: 0;
+      background-color: var(--bg-color);
+      color: var(--text-color);
+      font-family: Arial, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      min-height: 100vh;
+      overflow-y: auto;
+    }
+    .container {
+      margin-top: 40px;
+      background-color: var(--container-bg);
+      border-radius: 8px;
+      padding: 24px;
+      width: 440px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.7);
+    }
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+    h1 {
+      margin: 0;
+      font-size: 24px;
+      color: #ff6600;
+    }
+    .inputs {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+    .input-pair {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      opacity: 0;
+      animation: fadeIn 0.4s forwards;
+    }
+    label {
+      font-size: 14px;
+      margin-bottom: 4px;
+    }
+    input[type="text"],
+    select {
+      width: 100%;
+      padding: 8px;
+      background-color: var(--input-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 4px;
+      color: var(--text-color);
+      font-size: 14px;
+    }
+    select {
+      margin-bottom: 16px;
+    }
+    button {
+      width: 100%;
+      padding: 12px;
+      background-color: var(--button-bg);
+      border: none;
+      border-radius: 4px;
+      color: #ffffff;
+      font-size: 16px;
+      cursor: pointer;
+      margin-bottom: 12px;
+      transition: background-color 0.3s;
+    }
+    button:hover {
+      background-color: var(--button-hover);
+    }
+    #addNumBtn {
+      background-color: var(--border-color);
+      margin-top: -4px;
+    }
+    #addNumBtn:hover {
+      background-color: var(--button-hover);
+    }
+    .result-box {
+      margin-top: 16px;
+      background-color: var(--input-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 4px;
+      padding: 12px;
+      font-size: 14px;
+      word-break: break-all;
+      max-height: 550px;
+      overflow-y: auto;
+      opacity: 0;
+      animation: fadeIn 0.4s forwards;
+    }
+    .result-box pre {
+      font-family: "Courier New", Courier, monospace;
+      font-size: 14px;
+      line-height: 1.2;
+    }
+    @keyframes fadeIn {
+      to {
+        opacity: 1;
+      }
+    }
+    .theme-toggle-label {
+      font-size: 14px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .theme-toggle-label input[type="checkbox"] {
+      width: 16px;
+      height: 16px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>Repeating Decimal Ops</h1>
+      <label class="theme-toggle-label">
+        <input type="checkbox" id="themeToggle" />
+        Light Mode
+      </label>
+    </div>
+    <select id="operation">
+      <option value="add">Add (+)</option>
+      <option value="subtract">Subtract (−)</option>
+      <option value="multiply">Multiply (×)</option>
+      <option value="divide">Divide (÷)</option>
+      <option value="convert">Convert to Fraction</option>
+    </select>
+    <div class="inputs" id="inputs">
+      <div class="input-pair">
+        <div>
+          <label>Non-rep</label>
+          <input type="text" class="nonrep" placeholder="e.g. 0.4" />
+        </div>
+        <div>
+          <label>Rep</label>
+          <input type="text" class="rep" placeholder="e.g. 5" />
+        </div>
+      </div>
+      <div class="input-pair">
+        <div>
+          <label>Non-rep</label>
+          <input type="text" class="nonrep" placeholder="e.g. 0.1" />
+        </div>
+        <div>
+          <label>Rep</label>
+          <input type="text" class="rep" placeholder="e.g. 34" />
+        </div>
+      </div>
+    </div>
+    <button id="addNumBtn">Add Number</button>
+    <button id="calcBtn">Calculate</button>
+    <div class="result-box" id="result"></div>
+  </div>
+
+  <script>
+    // Disclaimer alert
+    alert(
+      "This tool is provided for your convenience. Its use is entirely at your own discretion, and any consequences are your responsibility, not the developer's  -- Dihad."
+    );
+
+    // Theme toggle logic
+    const themeToggle = document.getElementById("themeToggle");
+    themeToggle.addEventListener("change", (e) => {
+      document.body.classList.toggle("light-mode", e.target.checked);
+    });
+
+    function convertToFraction(num) {
+      const nonrep_str = num[0];
+      const rep_str = num[1];
+      const nonrep_int = parseInt(nonrep_str.replace(".", ""), 10);
+      const concatenated = parseInt((nonrep_str + rep_str).replace(".", ""), 10);
+      const numerator = concatenated - nonrep_int;
+      let decimal_nonrep = "";
+      if (nonrep_str.includes(".")) {
+        decimal_nonrep = nonrep_str.split(".")[1];
+      }
+      const denominator = parseInt(
+        "9".repeat(rep_str.length) + "0".repeat(decimal_nonrep.length),
+        10
+      );
+      return { n: numerator, d: denominator };
+    }
+
+    function gcd(a, b) {
+      a = Math.abs(a);
+      b = Math.abs(b);
+      while (b) {
+        const t = b;
+        b = a % b;
+        a = t;
+      }
+      return a;
+    }
+
+    function lcm(a, b) {
+      return Math.abs((a * b) / gcd(a, b));
+    }
+
+    function fit_for_poynpoin(num, cycle_len) {
+      const nonrep_str = num[0];
+      const rep_str = num[1];
+      let integer_part = nonrep_str;
+      let decimal_nonrep = "";
+      if (nonrep_str.includes(".")) {
+        const parts = nonrep_str.split(".");
+        integer_part = parts[0];
+        decimal_nonrep = parts[1];
+      }
+      const rep_count = Math.floor(cycle_len / rep_str.length);
+      const expanded_decimal = decimal_nonrep + rep_str.repeat(rep_count);
+      const mark = rep_str.length >= 2 ? rep_str : rep_str.repeat(2);
+      return integer_part + "." + expanded_decimal + "|" + mark;
+    }
+
+    function fractionToPoynpoin(n, d) {
+      if (d === 0) return "∞";
+      const sign = n < 0 ^ d < 0 ? "-" : "";
+      n = Math.abs(n);
+      d = Math.abs(d);
+      const integerPart = Math.floor(n / d);
+      let remainder = n % d;
+      if (remainder === 0) return sign + integerPart + "|0";
+      let nonrep = "";
+      const seen = {};
+      let rep = "";
+      let idx = 0;
+      while (remainder !== 0 && seen[remainder] === undefined) {
+        seen[remainder] = idx;
+        remainder *= 10;
+        const digit = Math.floor(remainder / d);
+        nonrep += digit;
+        remainder %= d;
+        idx++;
+      }
+      if (remainder === 0) {
+        return sign + integerPart + "." + nonrep + "|0";
+      }
+      const repeatIndex = seen[remainder];
+      rep = nonrep.slice(repeatIndex);
+      nonrep = nonrep.slice(0, repeatIndex);
+      return sign + integerPart + "." + nonrep + "|" + rep;
+    }
+
+    function addFractions(fracs) {
+      let denom_lcm = 1;
+      fracs.forEach((f) => {
+        denom_lcm = lcm(denom_lcm, f.d);
+      });
+      let lob = 0;
+      fracs.forEach((f) => {
+        lob += f.n * (denom_lcm / f.d);
+      });
+      const hor = denom_lcm;
+      const g = gcd(lob, hor);
+      return { n: lob / g, d: hor / g };
+    }
+
+    function subtractFractions(f1, f2) {
+      const common = lcm(f1.d, f2.d);
+      const lob = f1.n * (common / f1.d) - f2.n * (common / f2.d);
+      const hor = common;
+      const g = gcd(lob, hor);
+      return { n: lob / g, d: hor / g };
+    }
+
+    function multiplyFractions(fracs) {
+      let lob = 1;
+      let hor = 1;
+      fracs.forEach((f) => {
+        lob *= f.n;
+        hor *= f.d;
+      });
+      const g = gcd(lob, hor);
+      return { n: lob / g, d: hor / g };
+    }
+
+    function divideFractions(f1, f2) {
+      const lob = f1.n * f2.d;
+      const hor = f1.d * f2.n;
+      const g = gcd(lob, hor);
+      return { n: lob / g, d: hor / g };
+    }
+
+    document.getElementById("addNumBtn").addEventListener("click", () => {
+      const op = document.getElementById("operation").value;
+      if (op === "add" || op === "multiply" || op === "convert") {
+        const container = document.getElementById("inputs");
+        const pair = document.createElement("div");
+        pair.className = "input-pair";
+        pair.innerHTML = `
+          <div>
+            <label>Non-rep</label>
+            <input type="text" class="nonrep" placeholder="e.g. 0.2" />
+          </div>
+          <div>
+            <label>Rep</label>
+            <input type="text" class="rep" placeholder="e.g. 7" />
+          </div>
+        `;
+        container.appendChild(pair);
+      }
+    });
+
+    document.getElementById("operation").addEventListener("change", () => {
+      const op = document.getElementById("operation").value;
+      const addBtn = document.getElementById("addNumBtn");
+      const container = document.getElementById("inputs");
+      if (op === "add" || op === "multiply" || op === "convert") {
+        addBtn.style.display = "block";
+      } else {
+        addBtn.style.display = "none";
+      }
+      if (op !== "add" && op !== "multiply" && op !== "convert") {
+        while (container.children.length > 2) {
+          container.removeChild(container.lastChild);
+        }
+      }
+    });
+
+    document.getElementById("calcBtn").addEventListener("click", () => {
+      const op = document.getElementById("operation").value;
+      const pairs = Array.from(document.querySelectorAll(".input-pair"));
+      const nums = pairs.map((p) => {
+        const n = p.querySelector(".nonrep").value.trim();
+        const r = p.querySelector(".rep").value.trim();
+        return [n, r];
+      });
+      const resultDiv = document.getElementById("result");
+      resultDiv.innerHTML = "";
+      if (op === "convert") {
+        let html = "";
+        nums.forEach((num, idx) => {
+          const nonrep_str = num[0];
+          const rep_str = num[1];
+          const decimal_nonrep = nonrep_str.includes(".")
+            ? nonrep_str.split(".")[1]
+            : "";
+          const k = decimal_nonrep.length;
+          const r = rep_str.length;
+          const xName = `x${idx + 1}`;
+          const step1 = `${xName} = ${nonrep_str}(${rep_str})`;
+          const powK = Math.pow(10, k);
+          const powKR = Math.pow(10, k + r);
+          const step2 = `${powK}${xName} = ${parseInt(nonrep_str.replace(".", ""), 10)}.${rep_str}…`;
+          const step3 = `${powKR}${xName} = ${parseInt(
+            (nonrep_str + rep_str).replace(".", ""),
+            10
+          )}.${rep_str}…`;
+          const coeff = powKR - powK;
+          const numInt =
+            parseInt((nonrep_str + rep_str).replace(".", ""), 10) -
+            parseInt(nonrep_str.replace(".", ""), 10);
+          const step4 = `${powKR}${xName} − ${powK}${xName} = ${parseInt(
+            (nonrep_str + rep_str).replace(".", ""),
+            10
+          )} − ${parseInt(nonrep_str.replace(".", ""), 10)}`;
+          const step5 = `${coeff}${xName} = ${numInt}`;
+          const frac = `${xName} = ${numInt}/${coeff}`;
+          html += `<div><strong>Conversion for ${nonrep_str}(${rep_str}):</strong></div>`;
+          html += `<div>${step1}</div>`;
+          html += `<div>${step2}</div>`;
+          html += `<div>${step3}</div>`;
+          html += `<div>${step4}</div>`;
+          html += `<div>${step5}</div>`;
+          html += `<div>${frac}</div><br>`;
+        });
+        resultDiv.innerHTML = html;
+        return;
+      }
+
+      const fracs = nums.map((num) => convertToFraction(num));
+      let resultFrac;
+      if (op === "add") resultFrac = addFractions(fracs);
+      if (op === "multiply") resultFrac = multiplyFractions(fracs);
+      if (op === "subtract") {
+        if (fracs.length < 2) {
+          resultDiv.innerHTML = "Subtract requires exactly two numbers.";
+          return;
+        }
+        resultFrac = subtractFractions(fracs[0], fracs[1]);
+      }
+      if (op === "divide") {
+        if (fracs.length < 2) {
+          resultDiv.innerHTML = "Divide requires exactly two numbers.";
+          return;
+        }
+        resultFrac = divideFractions(fracs[0], fracs[1]);
+      }
+
+      let html = "";
+      html += `<div><strong>Conversions:</strong><br>`;
+      nums.forEach((num, idx) => {
+        html += `${num[0]}(${num[1]}) = ${fracs[idx].n}/${fracs[idx].d}<br>`;
+      });
+      html += `</div>`;
+
+      if (op === "add") {
+        const cycle_lens = nums.map((num) => num[1].length);
+        let cycle_len = 1;
+        cycle_lens.forEach((l) => {
+          cycle_len = lcm(cycle_len, l);
+        });
+        const formatted = nums.map((num) => fit_for_poynpoin(num, cycle_len));
+        const width = Math.max(...formatted.map((s) => s.length));
+        const padded = formatted.map((s) => " ".repeat(width - s.length) + s);
+        let lines = padded.join("\n") + "\n";
+        const dashLine = "-".repeat(width - 3) + "|--";
+        lines += dashLine + "\n";
+        let carry = 0;
+        let result_chars = [];
+        for (let i = width - 1; i >= 0; i--) {
+          if (/\d/.test(padded[0][i])) {
+            let column_sum = carry;
+            padded.forEach((s) => {
+              if (/\d/.test(s[i])) column_sum += parseInt(s[i], 10);
+            });
+            result_chars.push(String(column_sum % 10));
+            carry = Math.floor(column_sum / 10);
+          } else {
+            result_chars.push(padded[0][i]);
+          }
+        }
+        while (carry > 0) {
+          result_chars.push(String(carry % 10));
+          carry = Math.floor(carry / 10);
+        }
+        let result_str = result_chars.reverse().join("");
+        if (result_str.length < width) {
+          result_str = " ".repeat(width - result_str.length) + result_str;
+        }
+        lines += result_str;
+        html += `<div style="margin-top:8px;"><strong>Expanded Format:</strong></div><pre>${lines}</pre>`;
+      }
+
+      if (op === "subtract") {
+        const maxCycle = Math.max(nums[0][1].length, nums[1][1].length);
+        const numA = fit_for_poynpoin(nums[0], maxCycle);
+        const numB = fit_for_poynpoin(nums[1], maxCycle);
+        const width = Math.max(numA.length, numB.length);
+        const A = " ".repeat(width - numA.length) + numA;
+        const B = " ".repeat(width - numB.length) + numB;
+        let lines = `${A}\n${B}\n`;
+        const dashLine = "-".repeat(width - 3) + "|--";
+        lines += dashLine + "\n";
+        let borrow = 0;
+        let result_chars = [];
+        for (let i = width - 1; i >= 0; i--) {
+          if (/\d/.test(A[i])) {
+            const digitA = parseInt(A[i], 10);
+            const digitB = /\d/.test(B[i]) ? parseInt(B[i], 10) : 0;
+            let diff = digitA - digitB - borrow;
+            if (diff < 0) {
+              diff += 10;
+              borrow = 1;
+            } else {
+              borrow = 0;
+            }
+            result_chars.push(String(diff));
+          } else {
+            result_chars.push(A[i]);
+          }
+        }
+        while (borrow > 0) {
+          result_chars.push(String(10 - borrow));
+          borrow = 1;
+        }
+        let result_str = result_chars.reverse().join("");
+        if (result_str.length < width) {
+          result_str = " ".repeat(width - result_str.length) + result_str;
+        }
+        lines += result_str;
+        html += `<div style="margin-top:8px;"><strong>Expanded Format:</strong></div><pre>${lines}</pre>`;
+      }
+
+      if (op === "multiply") {
+        html += `<div style="margin-top:8px;"><strong>Multiplication Steps (fractions):</strong><br>`;
+        nums.forEach((num, idx) => {
+          html += `${num[0]}(${num[1]}) → ${fracs[idx].n}/${fracs[idx].d}<br>`;
+        });
+        let prodNum = 1;
+        let prodDen = 1;
+        nums.forEach((_, idx) => {
+          prodNum *= fracs[idx].n;
+          prodDen *= fracs[idx].d;
+        });
+        html += `<div style="margin-top:4px;"><strong>Multiply Numerators:</strong> ${fracs
+          .map((f) => f.n)
+          .join(" × ")} = ${prodNum}</div>`;
+        html += `<div><strong>Multiply Denominators:</strong> ${fracs
+          .map((f) => f.d)
+          .join(" × ")} = ${prodDen}</div>`;
+        const gMul = gcd(prodNum, prodDen);
+        html += `<div><strong>Reduce:</strong> ${prodNum}/${prodDen} = ${prodNum /
+          gMul}/${prodDen / gMul}</div>`;
+      }
+
+      if (op === "divide") {
+        html += `<div style="margin-top:8px;"><strong>Division Steps (fractions):</strong><br>`;
+        html += `Dividend: ${nums[0][0]}(${nums[0][1]}) → ${fracs[0].n}/${fracs[0].d}<br>`;
+        html += `Divisor: ${nums[1][0]}(${nums[1][1]}) → ${fracs[1].n}/${fracs[1].d}<br>`;
+        html += `<div style="margin-top:4px;"><strong>Reciprocal of Divisor:</strong> ${fracs[1].d}/${fracs[1].n}</div>`;
+        const numDiv = fracs[0].n * fracs[1].d;
+        const denDiv = fracs[0].d * fracs[1].n;
+        html += `<div><strong>Multiply Dividend by Reciprocal:</strong> ${fracs[0].n}/${
+          fracs[0].d
+        } × ${fracs[1].d}/${fracs[1].n} = ${numDiv}/${denDiv}</div>`;
+        const gDiv = gcd(numDiv, denDiv);
+        html += `<div><strong>Reduce:</strong> ${numDiv}/${denDiv} = ${numDiv / gDiv}/${denDiv /
+          gDiv}</div>`;
+      }
+
+      html += `<div style="margin-top:8px;"><strong>Result as Decimal:</strong> ${fractionToPoynpoin(
+        resultFrac.n,
+        resultFrac.d
+      )}</div>`;
+      html += `<div style="margin-top:4px;"><strong>Result as Fraction:</strong> ${resultFrac.n}/${
+        resultFrac.d
+      }</div>`;
+
+      resultDiv.innerHTML = html;
+    });
+
+    document.getElementById("operation").dispatchEvent(new Event("change"));
+  </script>
+</body>
+</html>
